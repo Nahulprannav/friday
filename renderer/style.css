@@ -1,0 +1,71 @@
+/* FRIDAY ADE — Global Styles */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a12;
+  --bg2: #0d0d1a;
+  --bg3: #111120;
+  --sidebar: #0c0c18;
+  --panel: #0f0f1e;
+  --border: #1a1a30;
+  --border2: #242440;
+  --accent: #00d4ff;
+  --accent-d: rgba(0,212,255,0.12);
+  --purple: #8b5cf6;
+  --purple-d: rgba(139,92,246,0.12);
+  --amber: #f59e0b;
+  --green: #10b981;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --dim: #6b7280;
+  --muted: #363656;
+}
+
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 2px; }
+
+/* Splash Screen */
+.splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: var(--bg);
+  gap: 8px;
+}
+.splash-icon { font-size: 52px; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
+.splash-title { color: var(--accent); font-size: 28px; font-weight: 700; letter-spacing: 8px; }
+.splash-sub { color: var(--dim); font-size: 10px; letter-spacing: 4px; margin-top: 2px; }
+.splash-tag {
+  background: var(--purple-d); color: var(--purple);
+  font-size: 9px; padding: 2px 10px; border-radius: 3px;
+  border: 1px solid rgba(139,92,246,0.3); letter-spacing: 3px; margin-top: 4px;
+}
+.splash-loading { margin-top: 32px; width: 220px; text-align: center; }
+.splash-bar { height: 2px; background: var(--border2); border-radius: 1px; overflow: hidden; }
+.splash-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.3s ease; }
+.splash-status { color: var(--dim); font-size: 10px; margin-top: 8px; letter-spacing: 1px; }
+
+/* Animations */
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+@keyframes thinkDot {
+  0%,80%,100%{transform:scale(0);opacity:0.3}
+  40%{transform:scale(1);opacity:1}
+}
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+.fade-in { animation: fadeIn 0.2s ease; }

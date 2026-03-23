@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRIDAY ADE</title>
+<!-- Monaco Editor CDN -->
+<link rel="stylesheet" href="https://unpkg.com/monaco-editor@0.45.0/min/vs/editor/editor.main.css">
+<script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js" onload="window.monacoReady=true"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #0a0a12; color: #e2e8f0; font-family: 'Segoe UI', 'Inter', system-ui, sans-serif; font-size: 13px; overflow: hidden; }
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2a4a; border-radius: 3px; }
+  #app { height: 100vh; display: flex; flex-direction: column; }
+
+  /* BOOT OVERLAY */
+  #boot-overlay { position: fixed; inset: 0; z-index: 9999; background: #020208; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+  .boot-eagle { font-size: 72px; animation: bootPulse 1s ease-in-out infinite alternate; }
+  .boot-title { font-size: 28px; font-weight: 700; letter-spacing: 6px; color: #00d4ff; font-family: 'JetBrains Mono','Consolas',monospace; text-shadow: 0 0 30px rgba(0,212,255,0.5); }
+  .boot-sub { font-size: 11px; letter-spacing: 4px; color: #4a4a6a; font-family: monospace; }
+  .boot-bar { width: 320px; height: 2px; background: #1a1a2e; border-radius: 2px; overflow: hidden; margin-top: 10px; }
+  .boot-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #7c3aed, #00d4ff); border-radius: 2px; transition: width 0.3s ease; }
+  #boot-log { font-family: 'JetBrains Mono','Consolas',monospace; font-size: 11px; color: #4a6a5a; margin-top: 12px; text-align: left; min-height: 120px; width: 320px; }
+  #boot-log div { margin-bottom: 3px; color: #3a8a5a; }
+  @keyframes bootPulse { from { text-shadow: 0 0 20px rgba(0,212,255,0.3); } to { text-shadow: 0 0 60px rgba(0,212,255,0.8); } }
+
+  /* TITLE BAR */
+  .titlebar { -webkit-app-region: drag; height: 40px; background: #0d0d1a; border-bottom: 1px solid #1e1e35; display: flex; align-items: center; padding: 0 14px; gap: 12px; flex-shrink: 0; }
+  .titlebar .nodrag { -webkit-app-region: no-drag; }
+  .win-btns { display: flex; gap: 6px; }
+  .win-btn { width: 13px; height: 13px; border-radius: 50%; border: none; cursor: pointer; opacity: 0.85; }
+  .win-btn:hover { opacity: 1; }
+  .win-btn.close { background: #ff5f57; }
+  .win-btn.min   { background: #febc2e; }
+  .win-btn.max   { background: #28c840; }
+  .title-brand { display: flex; align-items: center; gap: 8px; }
+  .title-brand .eagle { font-size: 16px; }
+  .title-brand .name  { color: #00d4ff; font-weight: 700; font-size: 13px; letter-spacing: 2px; font-family: 'JetBrains Mono','Consolas',monospace; }
+  .title-brand .sub   { color: #4a4a6a; font-size: 10px; letter-spacing: 1px; font-family: monospace; }
+  .title-menu { display: flex; gap: 2px; }
+  .menu-item { padding: 4px 9px; border-radius: 4px; cursor: pointer; color: #8888aa; font-size: 12px; transition: all 0.12s; }
+  .menu-item:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+  .title-right { display: flex; align-items: center; gap: 8px; }
+  .toolbar-btn { display: flex; align-items: center; gap: 5px; border-radius: 5px; padding: 4px 11px; cursor: pointer; font-size: 11px; border: 1px solid transparent; transition: all 0.15s; }
+  .toolbar-btn.github-off { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.25); color: #f59e0b; }
+  .toolbar-btn.github-on  { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); color: #10b981; }
+  .toolbar-btn.model-btn  { background: rgba(139,92,246,0.08); border-color: rgba(139,92,246,0.25); color: #c4b5fd; }
+  .toolbar-btn.settings-btn { background: rgba(100,100,180,0.08); border-color: rgba(100,100,180,0.25); color: #a0a0cc; }
+  .toolbar-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  /* MAIN LAYOUT */
+  .layout { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+  /* ACTIVITY BAR */
+  .activity-bar { width: 46px; background: #0d0d1a; border-right: 1px solid #1e1e35; display: flex; flex-direction: column; align-items: center; padding: 6px 0; gap: 2px; flex-shrink: 0; }
+  .act-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; font-size: 16px; border: none; background: transparent; color: #4a4a6a; transition: all 0.15s; position: relative; }
+  .act-btn.active { background: rgba(0,212,255,0.1); color: #00d4ff; }
+  .act-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: #9090b0; }
+  .act-btn::after { content: attr(data-tip); position: absolute; left: 46px; top: 50%; transform: translateY(-50%); background: #1e1e35; color: #e2e8f0; font-size: 11px; padding: 4px 9px; border-radius: 5px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.15s; border: 1px solid #2a2a45; z-index: 100; }
+  .act-btn:hover::after { opacity: 1; }
+
+  /* SIDEBAR */
+  .sidebar { width: 220px; background: #0d0d1a; border-right: 1px solid #1e1e35; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+  .sidebar-header { padding: 9px 12px 7px; font-size: 10px; color: #5a5a7a; letter-spacing: 2px; border-bottom: 1px solid #1e1e35; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; font-family: monospace; }
+  .sidebar-actions button { background: none; border: none; color: #5a5a7a; cursor: pointer; font-size: 16px; padding: 0 3px; line-height: 1; border-radius: 3px; }
+  .sidebar-actions button:hover { color: #e2e8f0; background: rgba(255,255,255,0.06); }
+
+  /* FILE TREE */
+  .tree { flex: 1; overflow-y: auto; padding: 4px 0; }
+  .tree-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 12px; padding: 20px; text-align: center; }
+  .tree-empty .empty-icon { font-size: 32px; opacity: 0.3; }
+  .tree-empty p { color: #5a5a7a; font-size: 11px; line-height: 1.6; }
+  .open-folder-btn { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: #00d4ff; padding: 6px 14px; border-radius: 5px; cursor: pointer; font-size: 11px; font-family: inherit; transition: all 0.15s; }
+  .open-folder-btn:hover { background: rgba(0,212,255,0.18); }
+  .tree-item { display: flex; align-items: center; gap: 6px; padding: 4px 12px; cursor: pointer; font-size: 12px; color: #b0b0cc; border-left: 2px solid transparent; user-select: none; transition: all 0.1s; }
+  .tree-item:hover { background: rgba(255,255,255,0.04); color: #e2e8f0; }
+  .tree-item.active { background: rgba(0,212,255,0.08); color: #00d4ff; border-left-color: #00d4ff; }
+  .tree-arrow { font-size: 8px; color: #5a5a7a; width: 10px; flex-shrink: 0; }
+  .tree-icon { font-size: 12px; flex-shrink: 0; }
+  .tree-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+  /* CENTER */
+  .center { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+  /* TABS */
+  .tabs-bar { display: flex; background: #0d0d1a; border-bottom: 1px solid #1e1e35; overflow-x: auto; flex-shrink: 0; min-height: 35px; }
+  .tab { display: flex; align-items: center; gap: 6px; padding: 0 14px; height: 35px; cursor: pointer; white-space: nowrap; border-right: 1px solid #1e1e35; border-top: 2px solid transparent; color: #7070a0; font-size: 12px; flex-shrink: 0; transition: all 0.1s; }
+  .tab.active { background: #0a0a12; color: #e2e8f0; border-top-color: #00d4ff; }
+  .tab:hover:not(.active) { color: #b0b0cc; background: rgba(255,255,255,0.03); }
+  .tab-close { font-size: 14px; color: #3a3a5a; margin-left: 2px; }
+  .tab-close:hover { color: #e2e8f0; }
+  .tabs-empty { padding: 0 16px; color: #3a3a5a; font-size: 11px; display: flex; align-items: center; }
+
+  /* EDITOR */
+  .editor-area { flex: 1; display: flex; overflow: hidden; background: #0a0a12; position: relative; }
+  #monaco-container { flex: 1; width: 100%; height: 100%; }
+  .welcome-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+  .welcome-screen .w-eagle { font-size: 56px; opacity: 0.12; animation: floatEagle 4s ease-in-out infinite; }
+  .welcome-screen .w-title { color: #2a2a4a; font-size: 22px; font-weight: 700; letter-spacing: 5px; font-family: monospace; }
+  .welcome-screen .w-sub { color: #2a2a4a; font-size: 11px; letter-spacing: 3px; }
+  .welcome-screen .w-hint { color: #3a3a5a; font-size: 11px; margin-top: 8px; }
+  .welcome-screen .w-hint a { color: #7070a0; cursor: pointer; text-decoration: underline; }
+  @keyframes floatEagle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  /* TERMINAL */
+  .terminal-wrap { height: 180px; background: #060610; border-top: 1px solid #1e1e35; display: flex; flex-direction: column; flex-shrink: 0; }
+  .terminal-header { display: flex; align-items: center; height: 30px; padding: 0 12px; border-bottom: 1px solid #1e1e35; flex-shrink: 0; gap: 16px; }
+  .term-tab-btn { font-size: 11px; color: #5a5a7a; cursor: pointer; letter-spacing: 0.5px; padding: 4px 0; border-bottom: 2px solid transparent; }
+  .term-tab-btn.active { color: #00d4ff; border-bottom-color: #00d4ff; }
+  .term-close { margin-left: auto; cursor: pointer; color: #4a4a6a; font-size: 16px; line-height: 1; }
+  .term-close:hover { color: #e2e8f0; }
+  .terminal-body { flex: 1; overflow-y: auto; padding: 6px 14px; font-family: 'JetBrains Mono','Consolas',monospace; }
+  .tl { line-height: 18px; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+  .tl.sys  { color: #4a4a6a; }
+  .tl.ok   { color: #10b981; }
+  .tl.warn { color: #f59e0b; }
+  .tl.err  { color: #ef4444; }
+  .tl.cmd  { color: #00d4ff; }
+  .tl.ai   { color: #a78bfa; }
+  .term-input-row { display: flex; align-items: center; padding: 3px 14px 6px; gap: 6px; flex-shrink: 0; }
+  .term-prompt { color: #00d4ff; font-family: monospace; font-size: 12px; }
+  #term-input { background: transparent; border: none; outline: none; color: #e2e8f0; font-family: 'JetBrains Mono','Consolas',monospace; font-size: 12px; flex: 1; }
+
+  /* OPENCLAW PANEL */
+  .oc-panel { width: 320px; background: #0a0a14; border-left: 1px solid #1e1e35; display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; position: relative; }
+  .oc-topbar { padding: 12px 14px 10px; border-bottom: 1px solid #1e1e35; flex-shrink: 0; background: linear-gradient(180deg, rgba(124,58,237,0.05) 0%, transparent 100%); }
+  .oc-name-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .oc-name { display: flex; align-items: center; gap: 9px; }
+  .oc-avatar { width: 32px; height: 32px; border-radius: 8px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 12px rgba(139,92,246,0.2); }
+  .oc-label { font-size: 13px; font-weight: 600; color: #c4b5fd; letter-spacing: 1px; }
+  .oc-sublabel { font-size: 10px; color: #5a5a7a; letter-spacing: 0.5px; }
+  .oc-status { display: flex; align-items: center; gap: 6px; }
+  .oc-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; transition: background 0.3s; box-shadow: 0 0 6px #10b981; }
+  .oc-dot.thinking { background: #f59e0b; animation: pulse 0.9s infinite; box-shadow: 0 0 10px #f59e0b; }
+  .oc-status-lbl { font-size: 10px; color: #5a5a7a; letter-spacing: 1px; font-family: monospace; }
+  .model-chips-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .mc { font-size: 10px; padding: 3px 8px; border-radius: 4px; cursor: pointer; border: 1px solid #1e1e35; color: #5a5a7a; background: transparent; font-family: monospace; transition: all 0.12s; }
+  .mc.on  { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.35); color: #c4b5fd; }
+  .mc:hover:not(.on) { border-color: #3a3a5a; color: #9090b0; }
+
+  /* MULTI THINK */
+  .multithink-bar { padding: 8px 14px; background: #0d0d1a; border-bottom: 1px solid #1e1e35; font-size: 11px; display: none; }
+  .mt-label { color: #4a4a6a; font-size: 9px; letter-spacing: 2px; margin-bottom: 5px; font-family: monospace; }
+  .mt-row { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+  .mt-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .mt-model { color: #a78bfa; min-width: 85px; font-family: monospace; font-size: 10px; }
+  .mt-status { color: #5a5a7a; font-size: 10px; }
+
+  /* MESSAGES */
+  .oc-messages { flex: 1; overflow-y: auto; padding: 12px 14px; }
+  .msg { margin-bottom: 16px; animation: fadeIn 0.2s ease; }
+  .msg-who { font-size: 10px; letter-spacing: 1px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 7px; font-family: monospace; }
+  .msg-who.u { color: #00d4ff; }
+  .msg-who.a { color: #a78bfa; }
+  .msg-ops-badge { background: rgba(16,185,129,0.1); color: #10b981; font-size: 9px; padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(16,185,129,0.25); font-family: monospace; }
+  .stream-badge { background: rgba(245,158,11,0.1); color: #f59e0b; font-size: 9px; padding: 1px 6px; border-radius: 3px; border: 1px solid rgba(245,158,11,0.25); font-family: monospace; animation: pulse 1s infinite; }
+  .msg-body { font-size: 12px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; color: #c0c0d8; }
+  .msg-body.u-body { background: #111120; border: 1px solid #1e1e35; border-radius: 6px; padding: 9px 12px; color: #e2e8f0; }
+  .thinking-anim { display: flex; align-items: center; gap: 8px; color: #5a5a7a; font-size: 12px; padding: 4px 0; }
+  .t-dots { display: flex; gap: 3px; }
+  .t-dot { width: 5px; height: 5px; border-radius: 50%; background: #8b5cf6; animation: thinkDot 1.4s infinite ease-in-out; }
+
+  /* INPUT */
+  .oc-input-area { padding: 10px 14px; border-top: 1px solid #1e1e35; flex-shrink: 0; }
+  .oc-input-box { background: #111120; border: 1px solid #242440; border-radius: 8px; padding: 9px 12px; display: flex; gap: 8px; align-items: flex-end; transition: border-color 0.15s; }
+  .oc-input-box:focus-within { border-color: rgba(139,92,246,0.4); box-shadow: 0 0 12px rgba(139,92,246,0.08); }
+  #oc-input { flex: 1; background: transparent; border: none; outline: none; color: #e2e8f0; font-size: 12px; resize: none; font-family: inherit; line-height: 1.6; caret-color: #a78bfa; }
+  #oc-input::placeholder { color: #3a3a5a; }
+  .send-btn { background: linear-gradient(135deg, #7c3aed, #6d28d9); border: none; border-radius: 6px; padding: 6px 14px; color: white; cursor: pointer; font-size: 11px; font-family: inherit; font-weight: 600; flex-shrink: 0; transition: all 0.15s; }
+  .send-btn:hover:not(:disabled) { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+  .send-btn:disabled { background: #1e1e35; color: #4a4a6a; cursor: not-allowed; }
+  .input-hints { display: flex; justify-content: space-between; margin-top: 5px; font-size: 10px; color: #3a3a5a; }
+  .hint-selfmod { color: #7c3aed; }
+
+  /* SETTINGS PANEL */
+  .settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; display: none; }
+  .settings-overlay.visible { display: block; }
+  .settings-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 340px; background: #0f0f1e; border-left: 1px solid #2a2a45; z-index: 501; display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.25s ease; box-shadow: -10px 0 40px rgba(0,0,0,0.5); }
+  .settings-panel.visible { transform: translateX(0); }
+  .settings-header { padding: 16px 20px; border-bottom: 1px solid #1e1e35; display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg, rgba(124,58,237,0.08) 0%, transparent 100%); flex-shrink: 0; }
+  .settings-header h3 { color: #c4b5fd; font-size: 13px; letter-spacing: 2px; font-family: monospace; }
+  .settings-close { cursor: pointer; color: #5a5a7a; font-size: 20px; line-height: 1; padding: 2px 6px; border-radius: 4px; }
+  .settings-close:hover { color: #e2e8f0; background: rgba(255,255,255,0.06); }
+  .settings-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+  .setting-section { display: flex; flex-direction: column; gap: 12px; }
+  .setting-section-title { font-size: 10px; color: #5a5a7a; letter-spacing: 2px; font-family: monospace; border-bottom: 1px solid #1e1e35; padding-bottom: 6px; }
+  .setting-group { display: flex; flex-direction: column; gap: 5px; }
+  .setting-group label { font-size: 11px; color: #8888aa; }
+  .setting-group input { background: #111120; border: 1px solid #2a2a45; border-radius: 6px; padding: 8px 10px; color: #e2e8f0; font-size: 12px; font-family: inherit; outline: none; transition: border-color 0.15s; }
+  .setting-group input:focus { border-color: rgba(139,92,246,0.5); }
+  .setting-group input::placeholder { color: #3a3a5a; }
+  .settings-save-btn { background: linear-gradient(135deg, #7c3aed, #6d28d9); border: none; border-radius: 6px; padding: 10px; color: white; cursor: pointer; font-size: 12px; font-family: inherit; font-weight: 600; transition: all 0.15s; }
+  .settings-save-btn:hover { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+  .settings-note { font-size: 10px; color: #4a4a5a; line-height: 1.6; background: #0a0a18; border: 1px solid #1e1e35; border-radius: 6px; padding: 10px; }
+  .settings-note a { color: #7070aa; }
+
+  /* STATUS BAR */
+  .statusbar { height: 22px; background: #0d0d1a; border-top: 1px solid #1e1e35; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 11px; color: #4a4a6a; font-family: monospace; flex-shrink: 0; }
+  .sb-left, .sb-right { display: flex; align-items: center; gap: 14px; }
+  .sb-brand { color: #7c3aed; }
+  .sb-accent { color: #00d4ff; }
+  .sb-git  { color: #f59e0b; }
+  .sb-git.on { color: #10b981; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  @keyframes thinkDot { 0%,80%,100%{transform:scale(0);opacity:0.2} 40%{transform:scale(1);opacity:1} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<!-- BOOT ANIMATION -->
+<div id="boot-overlay">
+  <div class="boot-eagle">🦅</div>
+  <div class="boot-title">FRIDAY ADE</div>
+  <div class="boot-sub">AUTONOMOUS DEVELOPMENT ENGINE · v1.4</div>
+  <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+  <div id="boot-log"></div>
+</div>
+
+<!-- SETTINGS OVERLAY -->
+<div class="settings-overlay" id="settings-overlay" onclick="app.closeSettings()"></div>
+<div class="settings-panel" id="settings-panel">
+  <div class="settings-header">
+    <h3>⚙ SETTINGS</h3>
+    <span class="settings-close" onclick="app.closeSettings()">×</span>
+  </div>
+  <div class="settings-body">
+    <div class="setting-section">
+      <div class="setting-section-title">GITHUB INTEGRATION</div>
+      <div class="setting-group"><label>GitHub Username</label><input id="s-gh-owner" placeholder="Nahulprannav"></div>
+      <div class="setting-group"><label>Repository Name</label><input id="s-gh-repo" placeholder="friday"></div>
+      <div class="setting-group"><label>Personal Access Token (ghp_...)</label><input id="s-gh-token" type="password" placeholder="Paste your token here"></div>
+      <div class="settings-note">Create a token at <strong>github.com/settings/tokens</strong> → Generate new token (classic) → tick the <strong>repo</strong> scope.</div>
+    </div>
+    <div class="setting-section">
+      <div class="setting-section-title">OLLAMA CONFIGURATION</div>
+      <div class="setting-group"><label>Ollama Base URL</label><input id="s-ollama-url" placeholder="http://localhost:11434"></div>
+    </div>
+    <button class="settings-save-btn" onclick="app.saveSettings()">💾 Save Settings</button>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- TITLE BAR -->
+  <div class="titlebar">
+    <div class="win-btns nodrag">
+      <button class="win-btn close"  onclick="window.fridayAPI?.window.close()"></button>
+      <button class="win-btn min"    onclick="window.fridayAPI?.window.minimize()"></button>
+      <button class="win-btn max"    onclick="window.fridayAPI?.window.maximize()"></button>
+    </div>
+    <div class="title-brand">
+      <span class="eagle">🦅</span>
+      <span class="name">FRIDAY ADE</span>
+      <span class="sub">v1.4</span>
+    </div>
+    <nav class="title-menu nodrag">
+      <span class="menu-item">File</span>
+      <span class="menu-item">Edit</span>
+      <span class="menu-item">View</span>
+      <span class="menu-item">Run</span>
+      <span class="menu-item">Git</span>
+      <span class="menu-item" onclick="app.focusOpenClaw()">OpenClaw</span>
+      <span class="menu-item">Help</span>
+    </nav>
+    <div style="flex:1"></div>
+    <div class="title-right nodrag">
+      <div id="github-btn" class="toolbar-btn github-off" onclick="app.toggleGitHub()" title="Connect GitHub">
+        <div class="toolbar-dot" id="gh-dot" style="background:#f59e0b"></div>
+        <span id="gh-label">GitHub</span>
+      </div>
+      <div class="toolbar-btn model-btn" onclick="app.cycleModel()" title="Active model — click to cycle">
+        <span>⚡</span>
+        <span id="active-model-label">llama3.2</span>
+      </div>
+      <div class="toolbar-btn settings-btn nodrag" onclick="app.openSettings()" title="Settings">⚙</div>
+    </div>
+  </div>
+
+  <!-- LAYOUT -->
+  <div class="layout">
+
+    <!-- ACTIVITY BAR -->
+    <div class="activity-bar">
+      <button class="act-btn active" id="act-files"  onclick="app.setSideTab('files')"  data-tip="Explorer">📁</button>
+      <button class="act-btn"        id="act-search" onclick="app.setSideTab('search')" data-tip="Search">🔍</button>
+      <button class="act-btn"        id="act-git"    onclick="app.setSideTab('git')"    data-tip="Source Control">⎇</button>
+      <button class="act-btn"        id="act-run"    onclick="app.setSideTab('run')"    data-tip="Run">▶</button>
+      <div style="flex:1"></div>
+      <button class="act-btn" data-tip="Settings" style="margin-bottom:8px" onclick="app.openSettings()">⚙</button>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span id="sidebar-title">EXPLORER</span>
+        <div class="sidebar-actions" id="sidebar-actions">
+          <button onclick="app.newFile()"   title="New File">+</button>
+          <button onclick="app.newFolder()" title="New Folder">📁</button>
+          <button onclick="app.openFolder()" title="Open Folder">📂</button>
+        </div>
+      </div>
+      <div class="tree" id="file-tree"></div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center">
+      <div class="tabs-bar" id="tabs-bar">
+        <span class="tabs-empty">No files open</span>
+      </div>
+      <div class="editor-area" id="editor-area">
+        <div class="welcome-screen" id="welcome-screen">
+          <div class="w-eagle">🦅</div>
+          <div class="w-title">FRIDAY ADE</div>
+          <div class="w-sub">AUTONOMOUS DEVELOPMENT ENGINE</div>
+          <div class="w-hint">Open a folder or ask OpenClaw to create a project</div>
+        </div>
+        <div id="monaco-container" style="display:none;width:100%;height:100%;"></div>
+      </div>
+      <div class="terminal-wrap" id="terminal-wrap">
+        <div class="terminal-header">
+          <span class="term-tab-btn active">TERMINAL</span>
+          <span class="term-tab-btn">OUTPUT</span>
+          <span class="term-tab-btn">DEBUG</span>
+          <span class="term-close" onclick="document.getElementById('terminal-wrap').style.display='none'">×</span>
+        </div>
+        <div class="terminal-body" id="term-body"></div>
+        <div class="term-input-row">
+          <span class="term-prompt">$</span>
+          <input id="term-input" type="text" placeholder="Enter command..." onkeydown="app.handleTermKey(event)" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+
+    <!-- OPENCLAW PANEL -->
+    <div class="oc-panel">
+      <div class="oc-topbar">
+        <div class="oc-name-row">
+          <div class="oc-name">
+            <div class="oc-avatar">🦅</div>
+            <div>
+              <div class="oc-label">OpenClaw</div>
+              <div class="oc-sublabel">Autonomous AI Engine</div>
+            </div>
+          </div>
+          <div class="oc-status">
+            <div class="oc-dot" id="oc-dot"></div>
+            <span class="oc-status-lbl" id="oc-status-lbl">READY</span>
+          </div>
+        </div>
+        <div class="model-chips-row" id="model-chips"></div>
+      </div>
+
+      <div class="multithink-bar" id="multithink-bar"></div>
+      <div class="oc-messages" id="oc-messages"></div>
+
+      <div class="oc-input-area">
+        <div class="oc-input-box">
+          <textarea id="oc-input" rows="2" placeholder="Ask OpenClaw anything, Boss..."></textarea>
+          <button class="send-btn" id="send-btn" onclick="app.send()">Send</button>
+        </div>
+        <div class="input-hints">
+          <span>Enter to send · Shift+Enter for new line</span>
+          <span class="hint-selfmod">SelfMod ON</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="sb-left">
+      <span class="sb-brand">🦅 FRIDAY ADE</span>
+      <span id="sb-branch">⎇ main</span>
+      <span id="sb-github" class="sb-git">○ GitHub</span>
+    </div>
+    <div class="sb-right">
+      <span id="sb-lang">—</span>
+      <span class="sb-accent">OpenClaw v1.4</span>
+      <span id="sb-clock" style="color:#5a5a7a">00:00:00</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Configure Monaco AMD loader
+  if (window.monacoReady) {
+    require.config({ paths: { 'vs': 'https://unpkg.com/monaco-editor@0.45.0/min/vs' } });
+  }
+</script>
+<script src="../openclaw/engine.js"></script>
+<script src="../openclaw/models.js"></script>
+<script src="../openclaw/selfmod.js"></script>
+<script src="../src/git.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

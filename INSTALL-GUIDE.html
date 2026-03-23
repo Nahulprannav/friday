@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRIDAY ADE — Installation Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #08080f;
+    --bg2: #0d0d1a;
+    --bg3: #111120;
+    --border: #1a1a30;
+    --border2: #242440;
+    --accent: #00d4ff;
+    --purple: #8b5cf6;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --dim: #6b7280;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.7; }
+
+  /* HERO */
+  .hero { position: relative; padding: 72px 40px 56px; text-align: center; overflow: hidden; border-bottom: 1px solid var(--border); }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(139,92,246,0.18) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0,212,255,0.08) 0%, transparent 70%); pointer-events: none; }
+  .eagle { font-size: 72px; display: block; margin-bottom: 16px; filter: drop-shadow(0 0 30px rgba(139,92,246,0.5)); }
+  .hero h1 { font-size: 48px; font-weight: 700; letter-spacing: 8px; color: var(--accent); margin-bottom: 4px; }
+  .hero .tagline { font-size: 12px; letter-spacing: 4px; color: var(--dim); margin-bottom: 16px; font-family: var(--mono); }
+  .badge { display: inline-block; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.4); color: var(--purple); font-size: 11px; padding: 4px 14px; border-radius: 20px; letter-spacing: 2px; font-family: var(--mono); }
+
+  /* LAYOUT */
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 32px; }
+  h2 { font-size: 22px; font-weight: 700; color: var(--accent); margin: 48px 0 20px; display: flex; align-items: center; gap: 10px; letter-spacing: 1px; }
+  h2::before { content: ''; display: block; width: 3px; height: 22px; background: var(--accent); border-radius: 2px; }
+  h3 { font-size: 16px; font-weight: 600; color: var(--text); margin: 28px 0 12px; }
+  p { color: #9ca3af; margin-bottom: 14px; }
+
+  /* OS TABS */
+  .os-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(--border2); }
+  .os-tab { padding: 10px 22px; cursor: pointer; font-size: 13px; font-family: var(--mono); color: var(--dim); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; display: flex; align-items: center; gap: 7px; }
+  .os-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .os-tab:hover:not(.active) { color: var(--text); }
+  .os-section { display: none; padding-top: 24px; }
+  .os-section.active { display: block; }
+
+  /* STEPS */
+  .steps { list-style: none; counter-reset: step; }
+  .step { counter-increment: step; display: flex; gap: 16px; margin-bottom: 28px; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.35); color: var(--accent); font-family: var(--mono); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-num::before { content: counter(step); }
+  .step-body { flex: 1; }
+  .step-body strong { color: var(--text); display: block; margin-bottom: 6px; font-size: 15px; }
+
+  /* CODE BLOCKS */
+  .code-block { background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px; padding: 16px 20px; margin: 10px 0; overflow-x: auto; }
+  .code-block pre { font-family: var(--mono); font-size: 12px; color: #a5f3fc; line-height: 1.8; }
+  .code-block .comment { color: var(--dim); }
+  .code-block .cmd { color: var(--accent); }
+  .code-block .ok { color: var(--green); }
+  .copy-btn { float: right; font-size: 10px; color: var(--dim); cursor: pointer; background: var(--border2); border: none; color: var(--dim); padding: 3px 8px; border-radius: 4px; font-family: var(--mono); margin-top: -2px; }
+  .copy-btn:hover { color: var(--text); }
+
+  /* INFO CARDS */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 16px 0; }
+  .card.warning { border-left: 3px solid var(--amber); background: rgba(245,158,11,0.05); }
+  .card.info    { border-left: 3px solid var(--accent); background: rgba(0,212,255,0.04); }
+  .card.success { border-left: 3px solid var(--green); background: rgba(16,185,129,0.05); }
+  .card-title { font-size: 11px; letter-spacing: 2px; font-family: var(--mono); margin-bottom: 8px; font-weight: 700; }
+  .card.warning .card-title { color: var(--amber); }
+  .card.info    .card-title { color: var(--accent); }
+  .card.success .card-title { color: var(--green); }
+
+  /* REQUIREMENTS TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th { text-align: left; font-size: 10px; letter-spacing: 2px; color: var(--dim); padding: 8px 14px; border-bottom: 1px solid var(--border2); font-family: var(--mono); font-weight: 400; }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  .badge-req { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-family: var(--mono); }
+  .req { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .opt { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+  .dl-link { color: var(--accent); text-decoration: none; font-size: 12px; font-family: var(--mono); }
+  .dl-link:hover { text-decoration: underline; }
+
+  /* MODEL TABLE */
+  .model-row td:first-child { font-family: var(--mono); color: var(--purple); font-size: 12px; }
+
+  /* SHORTCUT SECTION */
+  .shortcut-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 20px 0; }
+  .shortcut-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+  .shortcut-os { font-size: 28px; margin-bottom: 8px; }
+  .shortcut-label { font-size: 13px; color: var(--text); margin-bottom: 12px; font-weight: 600; }
+  .shortcut-cmd { font-size: 10px; font-family: var(--mono); color: var(--accent); background: var(--bg3); padding: 6px 10px; border-radius: 5px; border: 1px solid var(--border2); margin-top: 4px; word-break: break-all; }
+
+  /* WHAT IS */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .feature { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .feature-icon { font-size: 20px; margin-bottom: 8px; }
+  .feature-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .feature-desc { font-size: 12px; color: var(--dim); }
+
+  /* FOOTER */
+  .footer { text-align: center; padding: 40px 32px; border-top: 1px solid var(--border); color: var(--dim); font-size: 12px; font-family: var(--mono); letter-spacing: 1px; }
+  .footer span { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 32px; }
+    .shortcut-grid { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .container { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="eagle">🦅</span>
+  <h1>FRIDAY ADE</h1>
+  <div class="tagline">AUTONOMOUS DEVELOPMENT ENGINE</div>
+  <span class="badge">CODENAME: ANTIGRAVITY — v1.0</span>
+</div>
+
+<div class="container">
+
+  <!-- WHAT IS FRIDAY ADE -->
+  <h2>What is FRIDAY ADE?</h2>
+  <p>FRIDAY ADE is a VS Code-style IDE powered by <strong style="color:var(--purple)">OpenClaw</strong> — an autonomous AI development engine inspired by FRIDAY and JARVIS from Iron Man. OpenClaw doesn't just assist — it <em>acts</em>. It creates files, modifies code, manages your GitHub, and can even rewrite its own source code.</p>
+
+  <div class="feature-grid">
+    <div class="feature"><div class="feature-icon">🦅</div><div class="feature-name">OpenClaw AI</div><div class="feature-desc">Your FRIDAY/JARVIS AI partner. Calls you Boss. Builds autonomously.</div></div>
+    <div class="feature"><div class="feature-icon">🧠</div><div class="feature-name">Multi-Think</div><div class="feature-desc">Parallel reasoning across multiple Ollama models simultaneously.</div></div>
+    <div class="feature"><div class="feature-icon">🔧</div><div class="feature-name">SelfMod</div><div class="feature-desc">OpenClaw can modify its own source code on command.</div></div>
+    <div class="feature"><div class="feature-icon">⎇</div><div class="feature-name">GitHub Sync</div><div class="feature-desc">Commit, push, and manage repositories directly from the IDE.</div></div>
+    <div class="feature"><div class="feature-icon">📁</div><div class="feature-name">Full File Control</div><div class="feature-desc">Create, read, write, and delete any file or folder.</div></div>
+    <div class="feature"><div class="feature-icon">💻</div><div class="feature-name">Local AI First</div><div class="feature-desc">Runs on your machine via Ollama. No data sent to the cloud.</div></div>
+  </div>
+
+  <!-- REQUIREMENTS -->
+  <h2>Requirements</h2>
+  <table>
+    <tr><th>SOFTWARE</th><th>VERSION</th><th>STATUS</th><th>DOWNLOAD</th></tr>
+    <tr><td>Node.js</td><td>18 or higher</td><td><span class="badge-req req">REQUIRED</span></td><td><a class="dl-link" href="https://nodejs.org" target="_blank">nodejs.org →</a></td></tr>
+    <tr><td>npm</td><td>Comes with Node.js</td><td><span class="badge-req req">REQUIRED</span></td><td><a class="dl-link" href="https://nodejs.org" target="_blank">nodejs.org →</a></td></tr>
+    <tr><td>Ollama</td><td>Latest</td><td><span class="badge-req opt">RECOMMENDED</span></td><td><a class="dl-link" href="https://ollama.ai" target="_blank">ollama.ai →</a></td></tr>
+    <tr><td>Git</td><td>Any</td><td><span class="badge-req opt">OPTIONAL</span></td><td><a class="dl-link" href="https://git-scm.com" target="_blank">git-scm.com →</a></td></tr>
+  </table>
+
+  <div class="card warning">
+    <div class="card-title">⚠ OLLAMA NOTE</div>
+    Ollama is required for local AI models (llama3.2, deepseek-r1, etc.). Without it, OpenClaw falls back to cloud mode automatically. Install Ollama for full offline autonomous operation.
+  </div>
+
+  <!-- INSTALLATION -->
+  <h2>Installation</h2>
+
+  <div class="os-tabs">
+    <div class="os-tab active" onclick="showOS('windows')">🪟 Windows</div>
+    <div class="os-tab" onclick="showOS('mac')">🍎 macOS</div>
+    <div class="os-tab" onclick="showOS('linux')">🐧 Linux</div>
+  </div>
+
+  <!-- WINDOWS -->
+  <div id="os-windows" class="os-section active">
+    <ol class="steps">
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Install Node.js</strong>
+          <p>Download and run the Windows installer from <a class="dl-link" href="https://nodejs.org">nodejs.org</a>. Choose the LTS version. Make sure "Add to PATH" is checked during install.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Install Ollama</strong>
+          <p>Download from <a class="dl-link" href="https://ollama.ai">ollama.ai</a> and run the installer. Ollama will start automatically in the system tray.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Extract FRIDAY ADE</strong>
+          <p>Right-click <code style="color:var(--accent);font-family:var(--mono)">FRIDAY-ADE-v1.0.zip</code> → Extract All → choose a permanent location like <code style="color:var(--accent);font-family:var(--mono)">C:\Apps\friday-ade</code></p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Run Setup</strong>
+          <p>Open the extracted folder and double-click:</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">scripts\setup.bat</span></pre>
+          </div>
+          <p>This installs all dependencies, pulls AI models, and starts FRIDAY ADE.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Create Desktop Shortcut</strong>
+          <p>Double-click the shortcut creator to add FRIDAY ADE to your Desktop and Start Menu:</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">scripts\create-shortcut-windows.bat</span></pre>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Pull AI Models (optional, recommended)</strong>
+          <p>Open Command Prompt or PowerShell and run:</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">ollama pull llama3.2</span>
+<span class="cmd">ollama pull deepseek-r1</span>
+<span class="cmd">ollama pull codellama</span></pre>
+          </div>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- MACOS -->
+  <div id="os-mac" class="os-section">
+    <ol class="steps">
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Install Node.js</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="comment"># Using Homebrew (recommended)</span>
+<span class="cmd">brew install node</span>
+<span class="comment"># Or download from nodejs.org</span></pre>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Install Ollama</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">brew install ollama</span>
+<span class="comment"># Or download from ollama.ai</span></pre>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Extract and Setup</strong>
+          <p>Unzip <code style="color:var(--accent);font-family:var(--mono)">FRIDAY-ADE-v1.0.zip</code> to your desired location, then:</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">cd friday-ade</span>
+<span class="cmd">chmod +x scripts/setup.sh</span>
+<span class="cmd">./scripts/setup.sh</span></pre>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Create Desktop App Icon</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">chmod +x scripts/create-shortcut-mac.sh</span>
+<span class="cmd">./scripts/create-shortcut-mac.sh</span></pre>
+          </div>
+          <p>This creates <strong>FRIDAY ADE.app</strong> on your Desktop. Double-click to launch.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Pull AI Models</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">ollama serve &amp;</span>
+<span class="cmd">ollama pull llama3.2</span>
+<span class="cmd">ollama pull deepseek-r1</span></pre>
+          </div>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- LINUX -->
+  <div id="os-linux" class="os-section">
+    <ol class="steps">
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Install Node.js 18+</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="comment"># Ubuntu / Debian</span>
+<span class="cmd">curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -</span>
+<span class="cmd">sudo apt-get install -y nodejs</span>
+
+<span class="comment"># Arch</span>
+<span class="cmd">sudo pacman -S nodejs npm</span>
+
+<span class="comment"># Fedora</span>
+<span class="cmd">sudo dnf install nodejs npm</span></pre>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Install Ollama</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">curl -fsSL https://ollama.ai/install.sh | sh</span>
+<span class="cmd">ollama serve &amp;</span></pre>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Extract and Setup</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">unzip FRIDAY-ADE-v1.0.zip</span>
+<span class="cmd">cd friday-ade</span>
+<span class="cmd">chmod +x scripts/setup.sh</span>
+<span class="cmd">./scripts/setup.sh</span></pre>
+          </div>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Create Desktop Shortcut</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">chmod +x scripts/create-shortcut-linux.sh</span>
+<span class="cmd">./scripts/create-shortcut-linux.sh</span></pre>
+          </div>
+          <p>Adds FRIDAY ADE to your desktop and Applications menu.</p>
+        </div>
+      </li>
+      <li class="step">
+        <div class="step-num"></div>
+        <div class="step-body">
+          <strong>Pull AI Models</strong>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">copy</button>
+            <pre><span class="cmd">ollama pull llama3.2</span>
+<span class="cmd">ollama pull deepseek-r1</span>
+<span class="cmd">ollama pull codellama</span></pre>
+          </div>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- BUILD INSTALLER -->
+  <h2>Build a Real Installer</h2>
+  <p>You can package FRIDAY ADE into a proper installer (.exe, .dmg, .AppImage) using electron-builder.</p>
+  <div class="code-block">
+    <button class="copy-btn" onclick="copyCode(this)">copy</button>
+    <pre><span class="comment"># Install electron-builder first</span>
+<span class="cmd">npm install</span>
+
+<span class="comment"># Windows → .exe installer</span>
+<span class="cmd">npm run build:win</span>
+
+<span class="comment"># macOS → .dmg disk image</span>
+<span class="cmd">npm run build:mac</span>
+
+<span class="comment"># Linux → .AppImage + .deb</span>
+<span class="cmd">npm run build:linux</span>
+
+<span class="comment"># All platforms at once</span>
+<span class="cmd">npm run build:all</span></pre>
+  </div>
+  <p>Built installers appear in the <code style="color:var(--accent);font-family:var(--mono)">dist/</code> folder.</p>
+
+  <!-- DESKTOP SHORTCUT SUMMARY -->
+  <h2>Desktop Shortcut</h2>
+  <div class="shortcut-grid">
+    <div class="shortcut-card">
+      <div class="shortcut-os">🪟</div>
+      <div class="shortcut-label">Windows</div>
+      <div class="shortcut-cmd">scripts\create-shortcut-windows.bat</div>
+    </div>
+    <div class="shortcut-card">
+      <div class="shortcut-os">🍎</div>
+      <div class="shortcut-label">macOS</div>
+      <div class="shortcut-cmd">./scripts/create-shortcut-mac.sh</div>
+    </div>
+    <div class="shortcut-card">
+      <div class="shortcut-os">🐧</div>
+      <div class="shortcut-label">Linux</div>
+      <div class="shortcut-cmd">./scripts/create-shortcut-linux.sh</div>
+    </div>
+  </div>
+
+  <!-- AI MODELS -->
+  <h2>Available AI Models</h2>
+  <p>OpenClaw uses Ollama to run all models locally on your machine.</p>
+  <table>
+    <tr><th>MODEL</th><th>BEST FOR</th><th>PULL COMMAND</th></tr>
+    <tr class="model-row"><td>llama3.2</td><td>General code + chat (default)</td><td><code style="font-family:var(--mono);color:var(--accent);font-size:11px">ollama pull llama3.2</code></td></tr>
+    <tr class="model-row"><td>deepseek-r1</td><td>Deep reasoning + math</td><td><code style="font-family:var(--mono);color:var(--accent);font-size:11px">ollama pull deepseek-r1</code></td></tr>
+    <tr class="model-row"><td>codellama</td><td>Code-specialized tasks</td><td><code style="font-family:var(--mono);color:var(--accent);font-size:11px">ollama pull codellama</code></td></tr>
+    <tr class="model-row"><td>qwen2.5-coder</td><td>Code + multilingual</td><td><code style="font-family:var(--mono);color:var(--accent);font-size:11px">ollama pull qwen2.5-coder</code></td></tr>
+    <tr class="model-row"><td>mistral</td><td>Fast chat + analysis</td><td><code style="font-family:var(--mono);color:var(--accent);font-size:11px">ollama pull mistral</code></td></tr>
+    <tr class="model-row"><td>gemma2</td><td>Analysis + safety</td><td><code style="font-family:var(--mono);color:var(--accent);font-size:11px">ollama pull gemma2</code></td></tr>
+  </table>
+
+  <!-- OPENCLAW PERSONALITY -->
+  <h2>OpenClaw Personality</h2>
+  <div class="card info">
+    <div class="card-title">🦅 FRIDAY / JARVIS MODE</div>
+    OpenClaw is modeled after FRIDAY and JARVIS from Iron Man. It calls you <strong style="color:var(--accent)">"Boss"</strong>, acts autonomously without asking permission, narrates its actions with confidence, and proactively catches issues in your code. Try asking it:
+  </div>
+  <ul style="list-style:none;margin:16px 0;display:flex;flex-direction:column;gap:8px">
+    <li style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 16px;font-family:var(--mono);font-size:12px;color:var(--accent)">"Build me a full Express REST API for user authentication"</li>
+    <li style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 16px;font-family:var(--mono);font-size:12px;color:var(--accent)">"Modify your own engine to add a logging system"</li>
+    <li style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 16px;font-family:var(--mono);font-size:12px;color:var(--accent)">"Review all my files and find bugs"</li>
+    <li style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 16px;font-family:var(--mono);font-size:12px;color:var(--accent)">"Create a new React project from scratch"</li>
+  </ul>
+
+  <!-- TROUBLESHOOTING -->
+  <h2>Troubleshooting</h2>
+  <div class="card warning"><div class="card-title">⚠ npm install fails</div>Make sure Node.js 18+ is installed: <code style="font-family:var(--mono);color:var(--accent)">node --version</code>. If below 18, reinstall from nodejs.org.</div>
+  <div class="card warning"><div class="card-title">⚠ Electron not found</div>Run <code style="font-family:var(--mono);color:var(--accent)">npm install</code> from inside the friday-ade folder, not the scripts folder.</div>
+  <div class="card warning"><div class="card-title">⚠ Ollama models not responding</div>Make sure Ollama is running: <code style="font-family:var(--mono);color:var(--accent)">ollama serve</code> in a terminal. OpenClaw talks to Ollama on port 11434.</div>
+  <div class="card success"><div class="card-title">✓ QUICK START (no Ollama)</div>FRIDAY ADE works without Ollama — it falls back to cloud AI automatically. You can start building immediately and add Ollama models later.</div>
+
+</div>
+
+<div class="footer">
+  <span>🦅 FRIDAY ADE</span> — Autonomous Development Engine — Codename: <span>ANTIGRAVITY</span> — v1.0
+</div>
+
+<script>
+function showOS(os) {
+  document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.os-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('os-' + os).classList.add('active');
+  event.target.classList.add('active');
+}
+function copyCode(btn) {
+  const pre = btn.parentElement.querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText.replace(/^\$ /gm, ''));
+  btn.textContent = 'copied!';
+  setTimeout(() => btn.textContent = 'copy', 1800);
+}
+</script>
+</body>
+</html>
