@@ -1,0 +1,20 @@
+FRIDAY ADE - PERMISSIONS AND USAGE AGREEMENT
+
+Welcome to FRIDAY ADE (Autonomous Development Engine). 
+Because this application is designed to function as an autonomous AI assistant, it requires deeper system access than a standard text editor.
+
+By clicking "I Agree" to install this software, you explicitly grant the application the following permissions:
+
+1. FILE SYSTEM ACCESS
+FRIDAY ADE has the ability to natively read, write, modify, and delete files on your computer. When you open a workspace, the AI can perform file operations autonomously if requested.
+
+2. TERMINAL & SHELL ACCESS
+FRIDAY ADE includes a real, active terminal. The engine can execute shell scripts and background commands (like running builds, starting servers, or pushing to Git). You authorize the application to run shell operations on your behalf.
+
+3. NETWORK & OLLAMA ACCESS
+FRIDAY ADE communicates locally with Ollama (port 11434 by default) to generate AI responses, and requires external internet access to communicate with GitHub (if configured).
+
+4. BROWSER AUTOMATION
+FRIDAY ADE has the ability to open, control, and automate web browsers. This allows the AI to perform web testing, scrape documentation, and interact with web applications on your behalf.
+
+If you do not agree to grant these permissions to the Autonomous Engine, please click "Cancel" to abort the installation.
